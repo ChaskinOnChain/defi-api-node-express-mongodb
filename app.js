@@ -6,13 +6,7 @@ const defiRoutes = require("./routes/defiRoutes")
 
 const app = express()
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
-
-app.use("/api/defi/v1", defiRoutes)
-
 mongoose.set("strictQuery", false)
-
 try {
     mongoose.connect(process.env.MONGOURI, () => {
         console.log("Connected to MongoDB...")
@@ -23,3 +17,12 @@ try {
 } catch (e) {
     console.log(e)
 }
+
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
+
+app.use("/api/defi/v1", defiRoutes)
+
+app.use("/", () => {
+    res.status(404).send("Route not found!")
+})

@@ -2,14 +2,14 @@ const express = require("express")
 const router = express.Router()
 const {
     viewOneProtocol,
-    viewAllProtocols,
+    viewFilteredProtocols,
     addProtocol,
     deleteProtocol,
     updateEntireProtocol,
     updateSingleInfo,
 } = require("../controllers/defiController")
 
-router.route("/").get(viewAllProtocols).post(addProtocol)
+router.route("/").get(viewFilteredProtocols).post(addProtocol)
 router
     .route("/:id")
     .delete(deleteProtocol)

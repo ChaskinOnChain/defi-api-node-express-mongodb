@@ -13,9 +13,51 @@ const viewOneProtocol = asyncWrapper(async (req, res, next) => {
 })
 
 // GET
-const viewAllProtocols = asyncWrapper(async (req, res) => {
-    const protocols = await Protocol.find({})
-    res.status(200).json({ protocols })
+const viewFilteredProtocols = asyncWrapper(async (req, res) => {
+    const { name, type, sort, fields, numericFilters } = req.query
+    const queryObject = {}
+    if (name) {
+        queryObject.name = { $regex: name, $options: "i" }
+    }
+    if (type) {
+        queryObject.type = type
+    }
+    if (numericFilters) {
+        const operatorMap = {
+            ">": "$gt",
+            ">=": "$gte",
+            "=": "$eq",
+            "<": "$lt",
+            "<=": "$lte",
+        }
+        const regEx = /\b(<|>|>=|=|<|<=)\b/g
+        let filters = numericFilters.replace(regEx, (match) => `-${operatorMap[match]}-`)
+        const options = ["TVL"]
+        filters = filters.split(",").forEach((item) => {
+            const [field, operator, value] = item.split("-")
+            if (options.includes(field)) {
+                queryObject[field] = { [operator]: Number(value) }
+            }
+        })
+    }
+
+    let protocols = Protocol.find(queryObject)
+    if (sort) {
+        const sortedSearch = sort.split(",").join(" ")
+        protocols = protocols.sort(sortedSearch)
+    } else {
+        const sortedSearch = "-TVL"
+        protocols = protocols.sort(sortedSearch)
+    }
+    if (fields) {
+        const sortedSearch = fields.split(",").join(" ")
+        protocols = protocols.select(sortedSearch)
+    }
+    const page = Number(req.query.page) || 1
+    const limit = Number(req.query.limit) || 10
+    const skip = (page - 1) * limit
+    result = await protocols.skip(skip).limit(limit)
+    res.status(200).json({ result, nbHits: result.length })
 })
 
 // POST
@@ -61,8 +103,8 @@ const updateEntireProtocol = asyncWrapper(async (req, res) => {
 })
 
 module.exports = {
-    viewAllProtocols,
     viewOneProtocol,
+    viewFilteredProtocols,
     addProtocol,
     deleteProtocol,
     updateEntireProtocol,
