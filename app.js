@@ -12,9 +12,14 @@ app.use(express.urlencoded({ extended: false }))
 app.use("/api/defi/v1", defiRoutes)
 
 mongoose.set("strictQuery", false)
-mongoose.connect(process.env.MONGOURI, () => {
-    console.log("Connected to MongoDB...")
-    app.listen(port, () => {
-        console.log("Connected to App!")
+
+try {
+    mongoose.connect(process.env.MONGOURI, () => {
+        console.log("Connected to MongoDB...")
+        app.listen(port, () => {
+            console.log("Connected to App!")
+        })
     })
-})
+} catch (e) {
+    console.log(e)
+}
