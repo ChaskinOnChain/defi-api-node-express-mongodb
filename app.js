@@ -1,5 +1,3 @@
-// Homepage
-
 const express = require("express")
 const { StatusCodes } = require("http-status-codes")
 require("dotenv").config()
