@@ -1,8 +1,10 @@
 const express = require("express")
+const { StatusCodes } = require("http-status-codes")
 require("dotenv").config()
 const port = process.env.PORT
 const mongoose = require("mongoose")
-const defiRoutes = require("./routes/defiRoutes")
+const errorHandlerMiddleware = require("./middleware/error-handler")
+const defiRoutes = require("./routes/defi-routes")
 
 const app = express()
 
@@ -24,5 +26,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use("/api/defi/v1", defiRoutes)
 
 app.use("/", () => {
-    res.status(404).send("Route not found!")
+    res.status(StatusCodes.NOT_FOUND).send("Route not found!")
 })
+
+app.use(errorHandlerMiddleware)
